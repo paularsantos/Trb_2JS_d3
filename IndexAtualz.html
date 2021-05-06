@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <title>Trabalho Prático 2</title>
+        <style rel="stylesheet">
+            
+        </style>
+        <script src="https://d3js.org/d3.v6.min.js"></script>
+            <style type="text/css">
+                h1,h2,p{
+                    text-align: center;
+                    color: brown;
+                }
+
+            </style>
+                        
+    </head>
+
+    <body>
+        <h1> Análise de dados "Global Aquaculture Imports and Exports"</h1>
+        <h2> Análise da Distribuição de Quantidade de Exportação de Peixes</h2>
+        <p> Gráficos de Exportação de Peixes e Crustácios nos continentes "Americas, Europa e Oceania nos anos de 2013, 2014 e 2015."</p>
+    </body>
+
+    <script>
+
+        let stackedColumns = ["2013", "2014", "2015"];
+
+        Promise.all([
+            d3.csv("datasets/Africa_Value.csv", d => saveContinent(d, "Africa")),
+            d3.csv("datasets/Americas_Value.csv", d => saveContinent(d, "Americas")),
+            d3.csv("datasets/Asia_Value.csv", d => saveContinent(d, "Asia")),
+            d3.csv("datasets/Europe_Value.csv", d => saveContinent(d, "Europe")),
+            d3.csv("datasets/Oceania_Value.csv", d => saveContinent(d, "Oceania")),
+            d3.csv("datasets/Africa_Quantity.csv", d => saveContinent(d, "Africa")),
+            d3.csv("datasets/Americas_Quantity.csv", d => saveContinent(d, "Americas")),
+            d3.csv("datasets/Asia_Quantity.csv", d => saveContinent(d, "Asia")),
+            d3.csv("datasets/Europe_Quantity.csv", d => saveContinent(d, "Europe")),
+            d3.csv("datasets/Oceania_Quantity.csv", d => saveContinent(d, "Oceania"))]).then(results => {
+            
+            let dataValue = [];
+            let dataQuantity = [];
+
+            for (let i = 0 ; i < 5 ; i++) {
+                dataValue = dataValue.concat(results[i]);
+            }
+
+            for (let i = 5 ; i < results.length ; i++) {
+                dataQuantity = dataQuantity.concat(results[i]);
+            }
+
+            /*let data_V_Brazil = dataValue.filter(d => d["Land Area"] == "Brazil")
+                                      .filter(d => d["Trade flow"] == "Export")
+                                      .filter(d => d["Commodity"] == "Fish")
+
+            let data_Q_Brazil = dataQuantity.filter(d => d["Land Area"] == "Brazil")
+                                      .filter(d => d["Trade flow"] == "Export")
+                                      .filter(d => d["Commodity"] == "Fish")
+            */                          
+            //console.log(data_V_Brazil, data_Q_Brazil)
+
+            let svg_1 = d3.select("body").append("svg")
+                .attr("width", 400)
+                .attr("height", 500)
+
+            let svg_2 = d3.select("body").append("svg")
+                .attr("width", 400)
+                .attr("height", 500)
+            
+            let svg_3 = d3.select("body").append("svg")
+                .attr("width", 400)
+                .attr("height", 500)
+            
+            let svg_4 = d3.select("body").append("svg")
+                .attr("width", 400)
+                .attr("height", 500)
+            
+            let svg_5 = d3.select("body").append("svg")
+                .attr("width", 400)
+                .attr("height", 500)
+            
+            let svg_6 = d3.select("body").append("svg")
+                .attr("width", 400)
+                .attr("height", 500)
+            loadStackedBarChart(dataQuantity
+                                    .filter(d => d["continent"] === "Americas")
+                                    .filter(d => d["Commodity"] === "Fish")
+                                    .map(d => {
+                                        d.total = d3.sum(stackedColumns, c => d[c])
+                                        return d;
+                                    }).sort((a, b) => b.total - a.total), svg_1)
+            
+            loadStackedBarChart(dataQuantity
+                                    .filter(d => d["continent"] === "Europe")
+                                    .filter(d => d["Commodity"] === "Fish")
+                                    .map(d => {
+                                        d.total = d3.sum(stackedColumns, c => d[c])
+                                        return d;
+                                    }).sort((a, b) => b.total - a.total), svg_2)
+                       
+            
+            loadStackedBarChart(dataQuantity
+                                    .filter(d => d["continent"] === "Oceania")
+                                    .filter(d => d["Commodity"] === "Fish")
+                                    .map(d => {
+                                        d.total = d3.sum(stackedColumns, c => d[c])
+                                        return d;
+                                    }).sort((a, b) => b.total - a.total), svg_3)
+            
+            loadStackedBarChart(dataValue
+                                    .filter(d => d["continent"] === "Americas")
+                                    .filter(d => d["Commodity"] === "Fish")
+                                    .map(d => {
+                                        d.total = d3.sum(stackedColumns, c => d[c])
+                                        return d;
+                                    }).sort((a, b) => b.total - a.total), svg_4)
+
+            loadStackedBarChart(dataValue
+                                    .filter(d => d["continent"] === "Europe")
+                                    .filter(d => d["Commodity"] === "Fish")
+                                    .map(d => {
+                                        d.total = d3.sum(stackedColumns, c => d[c])
+                                        return d;
+                                    }).sort((a, b) => b.total - a.total), svg_5)
+            
+            loadStackedBarChart(dataValue
+                                    .filter(d => d["continent"] === "Oceania")
+                                    .filter(d => d["Commodity"] === "Fish")
+                                    .map(d => {
+                                        d.total = d3.sum(stackedColumns, c => d[c])
+                                        return d;
+                                    }).sort((a, b) => b.total - a.total), svg_6)
+        })
+        
+        function saveContinent(d, continent){
+            d.continent = continent;
+            d["2000"] = +d["2000"];
+            d["2013"] = +d["2013"];
+            d["2014"] = +d["2014"];
+            d["2015"] = +d["2015"];
+            d["2007"] = +d["2007"];
+            d["2008"] = +d["2008"];
+            d["2009"] = +d["2009"];
+            return d;
+        }
+
+        // Baseado em: https://observablehq.com/@d3/stacked-bar-chart
+        function loadStackedBarChart(data, svg){
+
+            let width = 500,
+                height = 500,
+                margin = {"top": 10,   "left": 10,
+                        "bottom": 10, "right": 10}
+
+            let series = d3.stack()
+                .keys(stackedColumns)
+            (data)
+                .map(d => (d.forEach(v => v.key = d.key), d))
+
+            let color = d3.scaleOrdinal()
+                .domain(series.map(d => d.key))
+                .range(d3.schemeSpectral[series.length])
+                .unknown("#ccc")
+
+            let y = d3.scaleLinear()
+                .domain([0, d3.max(series, d => d3.max(d, d => d[1]))])
+                .rangeRound([height - margin.bottom, margin.top])
+
+            let x = d3.scaleBand()
+                .domain(data.map(d => d["Land Area"]))
+                .range([margin.left, width - margin.right])
+                .padding(0.1)
+
+            console.log(series)
+
+            svg.append("g")
+                .selectAll("g")
+                .data(series)
+                .join("g")
+                    .attr("fill", d => color(d.key))
+                .selectAll("rect")
+                .data(d => d)
+                .join("rect")
+                    .attr("x", (d, i) => x(d.data["Land Area"]))
+                    .attr("y", d => y(d[1]))
+                    .attr("height", d => y(d[0]) - y(d[1]))
+                    .attr("width", x.bandwidth())
+                .append("title").text(d => d.data.continent + " " + d.key + " " + d.data["Land Area"])
+                
+                
+        }
+
+    </script>
+
+</html>
